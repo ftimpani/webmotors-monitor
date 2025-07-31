@@ -19,18 +19,21 @@ CORS(app)
 app.register_blueprint(vehicle_bp, url_prefix='/api')
 app.register_blueprint(scraper_bp, url_prefix='/api')
 
-# Configuração do Banco de Dados para funcionar no Render e localmente
-db_path_on_render = '/var/data/app.db'
-local_db_path = os.path.join(os.path.dirname(__file__), 'database', 'app.db')
+# --- Configuração do Banco de Dados para PostgreSQL ---
+# Pega a URL do banco de dados da variável de ambiente que o Render vai criar.
+database_url = os.environ.get('DATABASE_URL')
 
-if os.path.exists('/var/data'):
-    # Estamos no ambiente do Render, que cria a pasta /var/data
-    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{db_path_on_render}"
+if database_url:
+    # O Render usa "postgres://" mas o SQLAlchemy espera "postgresql://"
+    # Esta linha faz a conversão automática.
+    if database_url.startswith("postgres://"):
+        database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+    app.config['SQLALCHEMY_DATABASE_URI'] = database_url
 else:
-    # Estamos rodando localmente, crie a pasta 'database' se necessário
-    os.makedirs(os.path.dirname(local_db_path), exist_ok=True)
-    app.config['SQLALCHEMY_DATABASE_URI'] = f"sqlite:///{local_db_path}"
-
+    # Aviso caso a variável de ambiente não seja encontrada.
+    print("ATENÇÃO: A variável DATABASE_URL não foi encontrada. O banco de dados não está configurado.")
+# --- Fim da Configuração ---
 
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
