@@ -1,3 +1,8 @@
+# Primeiro, declara os bancos de dados que este Blueprint vai usar
+databases:
+  - name: webmotorsdb # Use o nome exato que você deu ao seu banco no Render
+
+# Depois, declara os serviços que este Blueprint vai criar
 services:
   - type: web
     name: webmotors-monitor
@@ -5,6 +10,3 @@ services:
     plan: free
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn main:app"
-    databases:
-      - name: webmotorsdb # Use o nome exato que você deu ao seu banco no Render
-        property: connectionString
