@@ -5,7 +5,6 @@ services:
     plan: free
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn main:app"
-    disk:
-      name: sqlite-data
-      mountPath: /var/data
-      sizeGB: 1
+    databases:
+      - name: webmotorsdb # Use o nome exato que você deu ao seu banco no Render
+        property: connectionString
